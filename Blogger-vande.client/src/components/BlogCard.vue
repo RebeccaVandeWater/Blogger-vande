@@ -3,7 +3,9 @@
 
   <div>
     <div class="d-flex m-2">
-      <img class="avatar-img img-fluid" :src="blog.creator.picture" :alt="blog.creator.name">
+      <router-link :to="{name: 'Profile', params: {profileId: blog.creatorId}}">
+        <img class="avatar-img img-fluid" :src="blog.creator.picture" :alt="blog.creator.name">
+      </router-link>
       <p class="fs-3 ms-3">
         {{ blog.creator.name }}
       </p>
@@ -19,9 +21,17 @@
         {{ blog.createdAt }}
       </p>
       <button @click="setActiveBlog()"  type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        View Post
+        View Blog
       </button>
-    </div>
+      <button v-if="account.id == blog.creatorId" @click="setActiveBlog()"  type="button" class="btn btn-secondary mb-3 ms-2" data-bs-toggle="modal" data-bs-target="#formModal">
+        Edit Blog
+      </button>
+    </div> 
+      <div>
+        <button v-if="account.id == blog.creatorId" @click="removeBlog()"  type="button" class="mt-5 btn btn-danger mb-3 ms-2">
+          Delete Blog
+        </button>
+      </div>
     </div>
     <div v-if="blog.imgUrl">
       <img class="img-fluid" :src="blog.imgUrl" :alt="blog.title">
@@ -36,6 +46,7 @@ import { computed } from 'vue';
 import { Blog } from '../models/Blog.js';
 import { blogsService } from '../services/BlogsService.js';
 import { AppState } from '../AppState.js';
+import Pop from '../utils/Pop.js';
 
 export default {
   props:{
@@ -46,11 +57,26 @@ export default {
 
     return {
       activeBlog: computed(() => AppState.activeBlog),
+      account: computed(() => AppState.account),
+      blogs: computed(() => AppState.blogs),
 
       setActiveBlog(){
 
         blogsService.setActiveBlog(props.blog)
-      }
+      },
+      async removeBlog(){
+        try {
+          const removeConfirm = await Pop.confirm('Are you sure you want to delete this sweet blog?')
+          if(!removeConfirm) {
+            return
+          }
+          const blogToDelete = props.blog.id 
+          // logger.log('blog to delete?', blogToDelete)
+          await blogsService.removeBlog(blogToDelete)
+        } catch (error) {
+          Pop.error(error.message)
+        }
+      },
     }
   }
 }
