@@ -1,19 +1,54 @@
 <template>
-  <div class="home flex-grow-1 d-flex flex-column align-items-center justify-content-center">
-    <div class="home-card p-5 bg-white rounded elevation-3">
-      <img src="https://bcw.blob.core.windows.net/public/img/8600856373152463" alt="CodeWorks Logo"
-        class="rounded-circle">
-      <h1 class="my-5 bg-dark text-white p-3 rounded text-center">
-        Vue 3 Starter
-      </h1>
+  <div class="container-fluid">
+    <div class="row p-2 justify-content-center">
+      <div class="col-12">
+        <h1>Blogger</h1>
+        <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#formModal">
+          <i class="mdi mdi-plus"></i>
+        </button>
+      </div>
+      <div class="col-md-10 my-2 border border-dark rounded card bg-white elevation-3" v-for="blog in blogs" :key="blog.id">  
+        <BlogCard :blog="blog"/>
+      </div>
     </div>
   </div>
+
+  <FormModal />
+  
+  <ModalComponent>
+    <template #body>
+      <BlogCard v-if="activeBlog" :blog="activeBlog" />  
+    </template>
+  </ModalComponent>
 </template>
 
 <script>
+import { computed, onMounted } from 'vue';
+import Pop from '../utils/Pop.js';
+import {blogsService} from '../services/BlogsService.js'
+import {AppState} from '../AppState.js'
+
 export default {
   setup() {
-    return {}
+
+    onMounted(() => {
+      getBlogs()
+    })
+
+    async function getBlogs(){
+      try {
+        await blogsService.getBlogs()
+      } catch (error) {
+        Pop.error(error)
+      }
+    }
+
+    return {
+      blogs: computed(() => AppState.blogs),
+
+      activeBlog: computed(() => AppState.activeBlog),
+
+    }
   }
 }
 </script>
@@ -38,4 +73,5 @@ export default {
     }
   }
 }
+
 </style>
