@@ -1,0 +1,13 @@
+
+  {
+    "name": "blogger-vande",
+    "version": "1.0.0",
+    "scripts": {
+      "build": "npm run setup:server",
+      "setup:app": "npm run setup:server && npm run setup:client",
+      "setup:client": "cd Blogger-vande.client && npm i",
+      "setup:server": "cd Blogger-vande && npm i",
+      "start": "node Blogger-vande/index.js"
+    }
+  }
+  
